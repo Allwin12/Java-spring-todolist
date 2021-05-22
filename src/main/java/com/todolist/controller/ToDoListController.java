@@ -26,8 +26,8 @@ public class ToDoListController {
     // List all tasks
     @GetMapping("/task")
     public Page<ToDoList> getTaskList(@RequestParam(required = false) Boolean completed,
-                                      @RequestParam(required = false) Integer page,
-                                      @RequestParam(required = false) Integer size){
+                                      @RequestParam(required = false, defaultValue = "0") Integer page,
+                                      @RequestParam(required = false, defaultValue = "10") Integer size){
         return service.getToDoList(completed, page, size);
     }
 
