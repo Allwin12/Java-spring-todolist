@@ -57,3 +57,37 @@ curl --location --request GET 'http://127.0.0.1:8080/task'
     "empty": false
 }
 ```
+
+## Custom responses
+
+### Return response using a HashMap
+
+This GET request will take a number in the path argument and return the list of 
+even and odd numbers in that range.
+
+#### Request
+
+```curl
+curl --location --request GET 'http://127.0.0.1:8080/numbers/10'
+```
+
+#### Response
+
+```json
+{
+    "even": [
+        2,
+        4,
+        6,
+        8,
+        10
+    ],
+    "odd": [
+        1,
+        3,
+        5,
+        7,
+        9
+    ]
+}
+```

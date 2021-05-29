@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ToDoListService {
@@ -21,15 +22,7 @@ public class ToDoListService {
 
     public Page<ToDoList> getToDoList(Boolean completed, Integer page, Integer size) {
         // Pagination object
-
         Pageable pageable = PageRequest.of(page,size);
-        if (completed != null) {
-            if (completed) {
-                return repository.getCompletedTasks(pageable);
-            } else {
-                return repository.getIncompleteTasks(pageable);
-            }
-        }
         return repository.findAll(pageable);
     }
 
