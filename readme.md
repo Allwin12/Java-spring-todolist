@@ -57,8 +57,30 @@ curl --location --request GET 'http://127.0.0.1:8080/task'
     "empty": false
 }
 ```
+## Mark a task as completed
 
-## Custom responses
+This PUT request will make the following two changes to the specified task.
+
+* Changed the completed flag to `True` from `False`
+* Updated the `completedAt` field with the current date time
+
+#### Request
+```curl
+curl --location --request PUT 'http://127.0.0.1:8080/task/1'
+```
+
+#### Response
+```json
+{
+    "id": 1,
+    "task": "Buy Groceries",
+    "completed": true,
+    "createdAt": "2021-05-20T09:34:23.000+00:00",
+    "completedAt": "2021-05-29T18:54:06.135+00:00"
+}
+```
+
+## Custom Responses
 
 ### Return response using a HashMap
 

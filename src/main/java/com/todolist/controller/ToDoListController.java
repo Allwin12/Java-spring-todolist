@@ -56,6 +56,11 @@ public class ToDoListController {
         return response;
     }
 
+    @GetMapping("/all")
+    public List<ToDoList> getAllTasks(@RequestParam Boolean completed){
+        return service.getAllTasks(completed);
+    }
+
     public class CustomResponse {
         HashMap<String, CustomObject> response = new HashMap<>();
 //        CustomObject r = new CustomObject(evenNumbers, oddNumbers, data);
