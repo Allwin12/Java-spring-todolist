@@ -1,14 +1,16 @@
 package com.todolist.controller;
 
 import com.todolist.entity.ToDoList;
+import com.todolist.repository.ToDoListRepository;
 import com.todolist.service.ToDoListService;
+import com.todolist.service.ToDoListService.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,20 +19,26 @@ public class ToDoListController {
     @Autowired
     public ToDoListService service;
 
+    //Fetch task ID and Name
+    @GetMapping("/task-id-name")
+    public List<ToDoListRepository.TaskIdAndName> getTaskIdAndName(){
+        return service.getTaskIdAndName();
+    }
+
+    // Fetch a list of task names
+    @GetMapping("/task-names")
+    public List<String> getAllTasksName() {
+        return service.getAllTasksNames();
+    }
+
     // Add a new task
     @PostMapping("/task")
     public ToDoList addTask(@RequestBody ToDoList task) {
         return service.addToDoList(task);
     }
 
-    // List all tasks
-    @GetMapping("/task")
-    public Page<ToDoList> getTaskList(@RequestParam(required = false) Boolean completed,
-                                      @RequestParam(required = false, defaultValue = "0") Integer page,
-                                      @RequestParam(required = false, defaultValue = "10") Integer size) {
-        return service.getToDoList(completed, page, size);
-    }
 
+    // Update a task - Mark as completed
     @PutMapping("/task/{id}")
     public ToDoList completeTask(@PathVariable Integer id) {
         return service.completeTask(id);
@@ -56,52 +64,40 @@ public class ToDoListController {
         return response;
     }
 
-    @GetMapping("/all")
-    public List<ToDoList> getAllTasks(@RequestParam Boolean completed){
-        return service.getAllTasks(completed);
+    // List all tasks with custom filters and pagination
+    @GetMapping("/task")
+    public Response getAllTasks(@RequestParam(required = false) Boolean completed,
+                                @RequestParam(required = false) String from,
+                                @RequestParam(required = false) String to,
+                                @RequestParam(required = false, defaultValue = "1") Integer page,
+                                @RequestParam(required = false, defaultValue = "10") Integer size,
+                                @RequestParam(required = false) String search) {
+        return service.filterTasks(completed, from, to, page, size, search);
     }
 
-    public class CustomResponse {
-        HashMap<String, CustomObject> response = new HashMap<>();
-//        CustomObject r = new CustomObject(evenNumbers, oddNumbers, data);
-//        response.put("data", r);
+    // Delete a task by ID
+    @DeleteMapping("/task/{id}")
+    public ResponseEntity<HashMap<String, ?>> deleteTaskById(@PathVariable Integer id){
+        HashMap<String, Object> response = new HashMap<>();
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add("foo", "bar");
+        Boolean deleted = service.deleteTaskById(id);
+        if(deleted){
+            response.put("status", "Success");
+            response.put("message", "Task deleted successfully!");
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
+        }
+        else {
+            response.put("status", "Failure");
+            response.put("Message", "Task not found");
+            response.put("code", 1001);
+            return ResponseEntity.status(400).headers(headers).body(response);
+        }
     }
 
-    public static class CustomObject {
-        private final List<Integer> evenNumbers;
-        private final List<Integer> oddNumbers;
-        private final String message;
-        private final String requestedAt;
-        private final Page<ToDoList> toDoList;
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-
-        public CustomObject(List<Integer> evenNumbers, List<Integer> oddNumbers, Page<ToDoList> toDoList) {
-            this.evenNumbers = evenNumbers;
-            this.oddNumbers = oddNumbers;
-            this.message = "This is a sample text";
-            this.requestedAt = simpleDateFormat.format(date);
-            this.toDoList = toDoList;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public List<Integer> getEvenNumbers() {
-            return evenNumbers;
-        }
-
-        public List<Integer> getOddNumbers() {
-            return oddNumbers;
-        }
-
-        public String getRequestedAt() {
-            return requestedAt;
-        }
-
-        public Page<ToDoList> getToDoList() {
-            return toDoList;
-        }
+    @GetMapping("/task/{id}")
+    public ToDoList findTaskById(@PathVariable Integer id){
+        return service.getTaskById(id);
     }
 }
